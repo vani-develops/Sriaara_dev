@@ -38,6 +38,20 @@
             flex-grow: 5;
             text-align: center;
         }
+        .navbar .right-links {
+            display: flex;
+            gap: 10px;
+        }
+        .navbar a {
+            text-decoration: none;
+            color: #074427;
+            font-weight: 600;
+            font-size: 16px;
+            transition: color 0.3s;
+        }
+        .navbar a:hover {
+            color: #d4af37;
+        }
         .container {
             display: flex;
             flex-wrap: wrap;
@@ -91,10 +105,13 @@
     </style>
 </head>
 <body>
-    <div class="navbar">
+   <div class="navbar">
         <h2>Sriaara Collections</h2>
+        <div class="right-links">
+            <a href="#contact">Contact</a>
+            <a href="https://www.instagram.com/sriaara_stories">Instagram</a>
+        </div>
     </div>
-    <h1>Sriaara Saree Collection</h1>
     <section id="saree-section">
         <h2>Sarees</h2>
         <div id="saree-display" class="container"></div>
