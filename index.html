@@ -38,211 +38,110 @@
             flex-grow: 5;
             text-align: center;
         }
-        .navbar .right-links {
+        .container {
             display: flex;
-            gap: 10px;
-        }
-        .navbar a {
-            text-decoration: none;
-            color: #074427;
-            font-weight: 600;
-            font-size: 16px;
-            transition: color 0.3s;
-        }
-        .navbar a:hover {
-            color: #d4af37;
-        }
-        .legend {
-            margin: 15px 0;
-            font-size: 16px;
-        }
-        .legend a {
-            color: #d4af37;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .carousel {
-            position: relative;
-            max-width: 400px;
-            margin: auto;
-            overflow: hidden;
-            border-radius: 10px;
-        }
-        .carousel img {
-            width: 100%;
-            display: none;
-            border-radius: 10px;
-        }
-        .carousel img.active {
-            display: block;
-        }
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0, 0, 0, 0.5);
-            color: white;
-            border: none;
-            cursor: pointer;
-            padding: 10px;
-            font-size: 20px;
-            border-radius: 5px;
-        }
-        .prev { left: 10px; }
-        .next { right: 10px; }
-        .container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 16px;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px 10px;
-    }
-    .container img {
-        width: 100%;
-        max-width: 350px;
-        height: 300px;
-        object-fit: cover;
-        border-radius: 10px;
-    }
-        .container {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        align-items: center;
-        gap: 12px;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px 10px;
-    }
-
-    .saree-img {
-        width: 100%;
-        max-width: 350px;
-        height: 300px;
-        object-fit: cover;
-        border-radius: 10px;
-    }
-
-    /* Mobile-friendly adjustments */
-    @media (max-width: 768px) {
-        .container {
-            flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: center;
             align-items: center;
+            gap: 12px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px 10px;
         }
-        .saree-img {
-            max-width: 90%; /* Images take most of the screen */
+        .saree-card {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 250px;
+            text-align: center;
+        }
+        .saree-card img {
+            width: 100%;
             height: auto;
+            border-radius: 8px;
         }
-    }
-        
+        .saree-name {
+            font-family: 'Playfair Display', serif;
+            color: black;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 8px 0;
+        }
+        .order-btn {
+            display: block;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #d4af37;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s ease-in-out;
+            text-align: center;
+        }
+        .order-btn:hover {
+            background-color: #b08d2d;
+        }
+        .order-btn.sold-out {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
     <div class="navbar">
         <h2>Sriaara Collections</h2>
-        <div class="right-links">
-            <a href="#contact">Contact</a>
-            <a href="https://www.instagram.com/sriaara_stories">Instagram</a>
-        </div>
     </div>
-    
-    <div class="carousel">
-        <button class="carousel-btn prev" onclick="prevSlide()">❮</button>
-        <img src="https://via.placeholder.com/250" class="active">
-        <img src="https://via.placeholder.com/250">
-        <img src="https://via.placeholder.com/250">
-        <button class="carousel-btn next" onclick="nextSlide()">❯</button>
-    </div>
+    <h1>Sriaara Saree Collection</h1>
     <section id="saree-section">
         <h2>Sarees</h2>
         <div id="saree-display" class="container"></div>
     </section>
     
-    
-    
+    <script>
+        let sarees = [];
+        async function fetchSarees() {
+            const sheetURL = "https://docs.google.com/spreadsheets/d/139WZkf0zqrcRmbrjeib0cTgwkPCPMC35zH1nS74gCQQ/gviz/tq?tqx=out:json";
+            const response = await fetch(sheetURL);
+            const text = await response.text();
+            const json = JSON.parse(text.substring(47, text.length - 2));
+            const rows = json.table.rows;
+            
+            sarees = rows.slice(1).map(row => ({
+                name: row.c[0]?.v || "Unknown Saree",
+                image: row.c[1]?.v || "https://via.placeholder.com/250",
+                availability: row.c[2]?.v || "Available",  
+                whatsapp: `https://wa.me/9381403370?text=Hello!%20I'm%20interested%20in%20the%20${encodeURIComponent(row.c[0]?.v || "saree")}.%20Can%20you%20share%20the%20details?`
+            }));
+            renderSarees();
+        }
+        
+        function renderSarees() {
+            const sareeDisplay = document.getElementById("saree-display");
+            sareeDisplay.innerHTML = "";
+            
+            sarees.forEach(saree => {
+                let card = document.createElement("div");
+                card.className = "saree-card";
 
-<script>
-    let sarees = [];
-let sareeIndex = 0;
-const imagesPerBatch = 9;
-const rotationInterval = 10000; // 10 seconds
+                let isSoldOut = saree.availability.toLowerCase() === "sold out";
+                let orderButton = isSoldOut 
+                    ? `<button class="order-btn sold-out" disabled>Sold Out</button>` 
+                    : `<a class="order-btn" href="${saree.whatsapp}" target="_blank">Order Now</a>`;
+                
+                card.innerHTML = `
+                    <img src="${saree.image}" alt="${saree.name}">
+                    <p class="saree-name">${saree.name}</p>
+                    ${orderButton} 
+                `;
+                
+                sareeDisplay.appendChild(card);
+            });
+        }
 
-async function fetchSarees() {
-    const sheetURL = "https://docs.google.com/spreadsheets/d/139WZkf0zqrcRmbrjeib0cTgwkPCPMC35zH1nS74gCQQ/gviz/tq?tqx=out:json";
-    const response = await fetch(sheetURL);
-    const text = await response.text();
-    const json = JSON.parse(text.substring(47, text.length - 2));
-    const rows = json.table.rows;
-
-    // Extract saree images from Google Sheets
-    sarees = rows.slice(1).map(row => ({
-        image: row.c[1]?.v || "https://via.placeholder.com/400"
-    }));
-
-    displaySarees(); // Show first batch
-    setInterval(displaySarees, rotationInterval); // Rotate images every 10 seconds
-}
-
-function displaySarees() {
-    const sareeDisplay = document.getElementById("saree-display");
-    sareeDisplay.innerHTML = ""; // Clear previous images
-
-    let endIndex = sareeIndex + imagesPerBatch;
-    let imagesToShow = sarees.slice(sareeIndex, endIndex);
-
-    // If not enough images, start from beginning
-    if (imagesToShow.length < imagesPerBatch) {
-        imagesToShow = sarees.slice(sareeIndex).concat(sarees.slice(0, imagesPerBatch - imagesToShow.length));
-    }
-
-    // Create image elements and add to display
-    imagesToShow.forEach(saree => {
-        let imgElement = document.createElement("img");
-        imgElement.src = saree.image;
-        imgElement.alt = "Saree Image";
-        imgElement.classList.add("saree-img");
-        sareeDisplay.appendChild(imgElement);
-    });
-
-    // Update index for next batch
-    sareeIndex = (sareeIndex + imagesPerBatch) % sarees.length;
-}
-
-fetchSarees();
-    function renderSarees() {
-    const sareeContainer = document.getElementById("sareeContainer");
-    sareeContainer.className = `saree-container ${currentView}`;
-    sareeContainer.innerHTML = "";
-
-    let start = (currentPage - 1) * itemsPerPage;
-    let end = start + itemsPerPage;
-    let paginatedItems = sarees.slice(start, end);
-
-    paginatedItems.forEach(saree => {
-        let card = document.createElement("div");
-        card.className = "saree-card";
-
-        // Check if the saree is sold out
-        let isSoldOut = saree.availability.toLowerCase() === "sold out";
-        let orderButton = isSoldOut 
-            ? `<button class="order-btn sold-out" disabled>Sold Out</button>` 
-            : `<a class="order-btn" href="${saree.whatsapp}" target="_blank">Order Now</a>`;
-
-        card.innerHTML = `
-            <img src="${saree.image}" alt="${saree.name}">
-            <p class="saree-name">${saree.name}</p>
-            ${orderButton}
-        `;
-
-        sareeContainer.appendChild(card);
-    });
-
-    renderPagination();
-}
-
-</script>
+        fetchSarees();
+    </script>
 </body>
 </html>
