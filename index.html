@@ -13,10 +13,15 @@
             padding: 20px;
             color: #333;
         }
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: #074427;
+            font-size: 28px;
+        }
         .navbar {
             position: sticky;
             top: 0;
-            background: white;
+            background: darkgreen;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
             padding: 10px 20px;
             display: flex;
@@ -27,7 +32,7 @@
         }
         .navbar h2 {
             font-family: 'Playfair Display', serif;
-            color: #074427;
+            color: #e1c02a;
             margin: 0;
             font-size: 35px;
             flex-grow: 5;
@@ -46,6 +51,15 @@
         }
         .navbar a:hover {
             color: #d4af37;
+        }
+        .legend {
+            margin: 15px 0;
+            font-size: 16px;
+        }
+        .legend a {
+            color: #d4af37;
+            text-decoration: none;
+            font-weight: bold;
         }
         .carousel {
             position: relative;
@@ -100,26 +114,30 @@
         <h2>Sriaara Collections</h2>
         <div class="right-links">
             <a href="#contact">Contact</a>
-            <a href="#collections">Collections</a>
+            <a href="https://www.instagram.com/sriaara_stories">Instagram</a>
         </div>
     </div>
-    
+    <h1>Sriaara Saree Collection</h1>
     <p class="legend">Follow us on Instagram: <a href="https://www.instagram.com/sriaara_stories" target="_blank">@sriaara_stories</a></p>
     
     <div class="carousel">
         <button class="carousel-btn prev" onclick="prevSlide()">❮</button>
-        <div id="carousel-images"></div>
+        <img src="https://via.placeholder.com/250" class="active">
+        <img src="https://via.placeholder.com/250">
+        <img src="https://via.placeholder.com/250">
         <button class="carousel-btn next" onclick="nextSlide()">❯</button>
     </div>
     <section id="saree-section">
         <h2>Sarees</h2>
         <div id="saree-display" class="container"></div>
     </section>
+    
+    
+    
 
 <script>
-     let sarees = [];
-    let carouselIndex = 0;
-    let sareeIndex = 0;
+    let sarees = [];
+    let currentIndex = 0;
     const imagesPerBatch = 9;
     const rotationInterval = 10000; // 10 seconds
 
@@ -131,29 +149,19 @@
         const rows = json.table.rows;
 
         sarees = rows.slice(1).map(row => ({
-            image: row.c[1]?.v || "https://via.placeholder.com/400"
+            image: row.c[1]?.v || "https://via.placeholder.com/350" // Default if no image
         }));
 
-        updateCarousel();
         displaySarees();
-
-        setInterval(updateCarousel, rotationInterval);
         setInterval(displaySarees, rotationInterval);
-    }
-
-    function updateCarousel() {
-        const carouselImg = document.getElementById("carousel-image");
-        carouselImg.src = sarees[carouselIndex]?.image || "https://via.placeholder.com/400";
-
-        carouselIndex = (carouselIndex + 1) % sarees.length;
     }
 
     function displaySarees() {
         const sareeDisplay = document.getElementById("saree-display");
         sareeDisplay.innerHTML = ""; // Clear previous images
 
-        let endIndex = sareeIndex + imagesPerBatch;
-        let imagesToShow = sarees.slice(sareeIndex, endIndex);
+        let endIndex = currentIndex + imagesPerBatch;
+        let imagesToShow = sarees.slice(currentIndex, endIndex);
 
         imagesToShow.forEach(saree => {
             let imgElement = document.createElement("img");
@@ -162,17 +170,8 @@
             sareeDisplay.appendChild(imgElement);
         });
 
-        sareeIndex = (endIndex >= sarees.length) ? 0 : endIndex;
-    }
-
-    function prevSlide() {
-        carouselIndex = (carouselIndex - 1 + sarees.length) % sarees.length;
-        updateCarousel();
-    }
-
-    function nextSlide() {
-        carouselIndex = (carouselIndex + 1) % sarees.length;
-        updateCarousel();
+        // Update index for the next rotation
+        currentIndex = (endIndex >= sarees.length) ? 0 : endIndex;
     }
 
     fetchSarees();
