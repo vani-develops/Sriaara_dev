@@ -212,6 +212,37 @@ function displaySarees() {
 }
 
 fetchSarees();
+    function renderSarees() {
+    const sareeContainer = document.getElementById("sareeContainer");
+    sareeContainer.className = `saree-container ${currentView}`;
+    sareeContainer.innerHTML = "";
+
+    let start = (currentPage - 1) * itemsPerPage;
+    let end = start + itemsPerPage;
+    let paginatedItems = sarees.slice(start, end);
+
+    paginatedItems.forEach(saree => {
+        let card = document.createElement("div");
+        card.className = "saree-card";
+
+        // Check if the saree is sold out
+        let isSoldOut = saree.availability.toLowerCase() === "sold out";
+        let orderButton = isSoldOut 
+            ? `<button class="order-btn sold-out" disabled>Sold Out</button>` 
+            : `<a class="order-btn" href="${saree.whatsapp}" target="_blank">Order Now</a>`;
+
+        card.innerHTML = `
+            <img src="${saree.image}" alt="${saree.name}">
+            <p class="saree-name">${saree.name}</p>
+            ${orderButton}
+        `;
+
+        sareeContainer.appendChild(card);
+    });
+
+    renderPagination();
+}
+
 </script>
 </body>
 </html>
