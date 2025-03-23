@@ -76,6 +76,23 @@
         }
         .prev { left: 10px; }
         .next { right: 10px; }
+        .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 10px;
+    }
+    .container img {
+        width: 100%;
+        max-width: 350px;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
     </style>
 </head>
 <body>
@@ -94,47 +111,51 @@
         <div id="carousel-images"></div>
         <button class="carousel-btn next" onclick="nextSlide()">❯</button>
     </div>
+    <section id="saree-section">
+        <h2>Sarees</h2>
+        <div id="saree-display" class="container"></div>
+    </section>
 
 <script>
      let sarees = [];
-        let index = 0;
-        let slides = [];
+    let currentIndex = 0;
+    const imagesPerBatch = 9;
+    const rotationInterval = 10000; // 10 seconds
 
-        async function fetchSarees() {
-            const sheetURL = "https://docs.google.com/spreadsheets/d/139WZkf0zqrcRmbrjeib0cTgwkPCPMC35zH1nS74gCQQ/gviz/tq?tqx=out:json";
-            const response = await fetch(sheetURL);
-            const text = await response.text();
-            const json = JSON.parse(text.substring(47, text.length - 2));
-            const rows = json.table.rows;
+    async function fetchSarees() {
+        const sheetURL = "https://docs.google.com/spreadsheets/d/139WZkf0zqrcRmbrjeib0cTgwkPCPMC35zH1nS74gCQQ/gviz/tq?tqx=out:json";
+        const response = await fetch(sheetURL);
+        const text = await response.text();
+        const json = JSON.parse(text.substring(47, text.length - 2));
+        const rows = json.table.rows;
 
-            sarees = rows.slice(1).map(row => ({
-                name: row.c[0]?.v || "Unknown Saree",
-                image: row.c[1]?.v || "https://via.placeholder.com/250"
-            }));
+        sarees = rows.slice(1).map(row => ({
+            image: row.c[1]?.v || "https://via.placeholder.com/350" // Default if no image
+        }));
 
-            renderCarousel();
-        }
+        displaySarees();
+        setInterval(displaySarees, rotationInterval);
+    }
 
-        function renderCarousel() {
-            const carouselContainer = document.getElementById("carousel-images");
-            carouselContainer.innerHTML = sarees.map((saree, i) => `
-                <img src="${saree.image}" class="${i === 0 ? 'active' : ''}">
-            `).join('');
+    function displaySarees() {
+        const sareeDisplay = document.getElementById("saree-display");
+        sareeDisplay.innerHTML = ""; // Clear previous images
 
-            slides = document.querySelectorAll(".carousel img");
-        }
+        let endIndex = currentIndex + imagesPerBatch;
+        let imagesToShow = sarees.slice(currentIndex, endIndex);
 
-        function showSlide(n) {
-            slides[index].classList.remove("active");
-            index = (n + slides.length) % slides.length;
-            slides[index].classList.add("active");
-        }
+        imagesToShow.forEach(saree => {
+            let imgElement = document.createElement("img");
+            imgElement.src = saree.image;
+            imgElement.alt = "Saree Image";
+            sareeDisplay.appendChild(imgElement);
+        });
 
-        function nextSlide() { showSlide(index + 1); }
-        function prevSlide() { showSlide(index - 1); }
+        // Update index for the next rotation
+        currentIndex = (endIndex >= sarees.length) ? 0 : endIndex;
+    }
 
-        setInterval(nextSlide, 3000);
-        fetchSarees();
+    fetchSarees();
 </script>
 </body>
 </html>
