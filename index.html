@@ -107,6 +107,37 @@
         object-fit: cover;
         border-radius: 10px;
     }
+        .container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px 10px;
+    }
+
+    .saree-img {
+        width: 100%;
+        max-width: 350px;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    /* Mobile-friendly adjustments */
+    @media (max-width: 768px) {
+        .container {
+            flex-direction: column;
+            align-items: center;
+        }
+        .saree-img {
+            max-width: 90%; /* Images take most of the screen */
+            height: auto;
+        }
+    }
+        
     </style>
 </head>
 <body>
@@ -117,8 +148,6 @@
             <a href="https://www.instagram.com/sriaara_stories">Instagram</a>
         </div>
     </div>
-    <h1>Sriaara Saree Collection</h1>
-    <p class="legend">Follow us on Instagram: <a href="https://www.instagram.com/sriaara_stories" target="_blank">@sriaara_stories</a></p>
     
     <div class="carousel">
         <button class="carousel-btn prev" onclick="prevSlide()">❮</button>
@@ -136,65 +165,53 @@
     
 
 <script>
-     let sarees = [];
-    let carouselIndex = 0;
-    let sareeIndex = 0;
-    const imagesPerBatch = 9;
-    const rotationInterval = 10000; // 10 seconds
+    let sarees = [];
+let sareeIndex = 0;
+const imagesPerBatch = 9;
+const rotationInterval = 10000; // 10 seconds
 
-    async function fetchSarees() {
-        const sheetURL = "https://docs.google.com/spreadsheets/d/139WZkf0zqrcRmbrjeib0cTgwkPCPMC35zH1nS74gCQQ/gviz/tq?tqx=out:json";
-        const response = await fetch(sheetURL);
-        const text = await response.text();
-        const json = JSON.parse(text.substring(47, text.length - 2));
-        const rows = json.table.rows;
+async function fetchSarees() {
+    const sheetURL = "https://docs.google.com/spreadsheets/d/139WZkf0zqrcRmbrjeib0cTgwkPCPMC35zH1nS74gCQQ/gviz/tq?tqx=out:json";
+    const response = await fetch(sheetURL);
+    const text = await response.text();
+    const json = JSON.parse(text.substring(47, text.length - 2));
+    const rows = json.table.rows;
 
-        sarees = rows.slice(1).map(row => ({
-            image: row.c[1]?.v || "https://via.placeholder.com/400"
-        }));
+    // Extract saree images from Google Sheets
+    sarees = rows.slice(1).map(row => ({
+        image: row.c[1]?.v || "https://via.placeholder.com/400"
+    }));
 
-        updateCarousel();
-        displaySarees();
+    displaySarees(); // Show first batch
+    setInterval(displaySarees, rotationInterval); // Rotate images every 10 seconds
+}
 
-        setInterval(updateCarousel, rotationInterval);
-        setInterval(displaySarees, rotationInterval);
+function displaySarees() {
+    const sareeDisplay = document.getElementById("saree-display");
+    sareeDisplay.innerHTML = ""; // Clear previous images
+
+    let endIndex = sareeIndex + imagesPerBatch;
+    let imagesToShow = sarees.slice(sareeIndex, endIndex);
+
+    // If not enough images, start from beginning
+    if (imagesToShow.length < imagesPerBatch) {
+        imagesToShow = sarees.slice(sareeIndex).concat(sarees.slice(0, imagesPerBatch - imagesToShow.length));
     }
 
-    function updateCarousel() {
-        const carouselImg = document.getElementById("carousel-image");
-        carouselImg.src = sarees[carouselIndex]?.image || "https://via.placeholder.com/400";
+    // Create image elements and add to display
+    imagesToShow.forEach(saree => {
+        let imgElement = document.createElement("img");
+        imgElement.src = saree.image;
+        imgElement.alt = "Saree Image";
+        imgElement.classList.add("saree-img");
+        sareeDisplay.appendChild(imgElement);
+    });
 
-        carouselIndex = (carouselIndex + 1) % sarees.length;
-    }
+    // Update index for next batch
+    sareeIndex = (sareeIndex + imagesPerBatch) % sarees.length;
+}
 
-    function displaySarees() {
-        const sareeDisplay = document.getElementById("saree-display");
-        sareeDisplay.innerHTML = ""; // Clear previous images
-
-        let endIndex = sareeIndex + imagesPerBatch;
-        let imagesToShow = sarees.slice(sareeIndex, endIndex);
-
-        imagesToShow.forEach(saree => {
-            let imgElement = document.createElement("img");
-            imgElement.src = saree.image;
-            imgElement.alt = "Saree Image";
-            sareeDisplay.appendChild(imgElement);
-        });
-
-        sareeIndex = (endIndex >= sarees.length) ? 0 : endIndex;
-    }
-
-    function prevSlide() {
-        carouselIndex = (carouselIndex - 1 + sarees.length) % sarees.length;
-        updateCarousel();
-    }
-
-    function nextSlide() {
-        carouselIndex = (carouselIndex + 1) % sarees.length;
-        updateCarousel();
-    }
-
-    fetchSarees();
+fetchSarees();
 </script>
 </body>
 </html>
