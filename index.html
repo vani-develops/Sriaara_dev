@@ -118,7 +118,8 @@
 
 <script>
      let sarees = [];
-    let currentIndex = 0;
+    let carouselIndex = 0;
+    let sareeIndex = 0;
     const imagesPerBatch = 9;
     const rotationInterval = 10000; // 10 seconds
 
@@ -130,19 +131,29 @@
         const rows = json.table.rows;
 
         sarees = rows.slice(1).map(row => ({
-            image: row.c[1]?.v || "https://via.placeholder.com/350" // Default if no image
+            image: row.c[1]?.v || "https://via.placeholder.com/400"
         }));
 
+        updateCarousel();
         displaySarees();
+
+        setInterval(updateCarousel, rotationInterval);
         setInterval(displaySarees, rotationInterval);
+    }
+
+    function updateCarousel() {
+        const carouselImg = document.getElementById("carousel-image");
+        carouselImg.src = sarees[carouselIndex]?.image || "https://via.placeholder.com/400";
+
+        carouselIndex = (carouselIndex + 1) % sarees.length;
     }
 
     function displaySarees() {
         const sareeDisplay = document.getElementById("saree-display");
         sareeDisplay.innerHTML = ""; // Clear previous images
 
-        let endIndex = currentIndex + imagesPerBatch;
-        let imagesToShow = sarees.slice(currentIndex, endIndex);
+        let endIndex = sareeIndex + imagesPerBatch;
+        let imagesToShow = sarees.slice(sareeIndex, endIndex);
 
         imagesToShow.forEach(saree => {
             let imgElement = document.createElement("img");
@@ -151,8 +162,17 @@
             sareeDisplay.appendChild(imgElement);
         });
 
-        // Update index for the next rotation
-        currentIndex = (endIndex >= sarees.length) ? 0 : endIndex;
+        sareeIndex = (endIndex >= sarees.length) ? 0 : endIndex;
+    }
+
+    function prevSlide() {
+        carouselIndex = (carouselIndex - 1 + sarees.length) % sarees.length;
+        updateCarousel();
+    }
+
+    function nextSlide() {
+        carouselIndex = (carouselIndex + 1) % sarees.length;
+        updateCarousel();
     }
 
     fetchSarees();
